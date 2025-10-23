@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using UnityEngine;
 
 public class PlayerMovement : MonoBehaviour
@@ -16,6 +17,16 @@ public class PlayerMovement : MonoBehaviour
     public float groundCheckRadius = 0.2f; // Radius of ground check circle
     public LayerMask groundLayer;       // Layer considered as ground
 
+    Animator m_Animator;
+    private bool grounded;
+
+
+    void Start()
+    {
+        //This gets the Animator, which should be attached to the GameObject you are intending to animate.
+        m_Animator = gameObject.GetComponent<Animator>();
+
+    }
 
 
     void Update()
@@ -27,11 +38,20 @@ public class PlayerMovement : MonoBehaviour
         if (horizontalInput < 0)
         {
             transform.localScale = new Vector3(-1, 1, 1); // Face left
+            m_Animator.SetBool("run", true);
         }
         else if (horizontalInput > 0)
         {
             transform.localScale = new Vector3(1, 1, 1); // Face right
+            m_Animator.SetBool("run", true);
         }
+        else
+        {
+
+            m_Animator.SetBool("run", false);
+        }
+
+           
 
         // Check if the player is on the ground (should happen before jump input)
         isGrounded = Physics2D.OverlapCircle(groundCheck.position, groundCheckRadius, groundLayer);
@@ -73,5 +93,20 @@ public class PlayerMovement : MonoBehaviour
             Gizmos.color = Color.red;
             Gizmos.DrawWireSphere(groundCheck.position, groundCheckRadius);
         }
+
     }
+    public bool deathState = false; // Set default death state to false
+    private void OnTriggerEnter2D(Collider2D other)
+    {
+        if (other.gameObject.tag == "Enemy")
+        {
+            deathState = true; // Say to GameManager that player is dead
+        }
+        else
+        {
+            deathState = false;
+        }
+    }
+
+
 }
